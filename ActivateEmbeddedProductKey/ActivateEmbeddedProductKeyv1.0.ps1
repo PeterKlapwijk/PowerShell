@@ -1,12 +1,12 @@
 # --------------------------------------------------------------------------------------------- # 
-# Author(s)    : Peter Klapwijk - www.InTheCloud247.com      					                #
+# Author(s)    : Peter Klapwijk - www.InTheCloud247.com      					#
 # Version      : 1.0                                                                            #
 #                                                                                               #
 # Description  : Script retrieves the firmware-embedded product key and activates Windows       #
-#                with this key														            #
-#                														                        #
+#                with this key									#
+#                										#
 # Changes      : v1.0 Initial version	                                                        #
-#                														                        #
+#                										#
 # --------------------------------------------------------------------------------------------- #
 
 # Start Transcript
