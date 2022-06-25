@@ -4,4 +4,4 @@ Script ActivateEmbeddedProductKey.ps1 retrieves the firmware-embedded product ke
 Can also be used in Microsoft Intune when wrapped as win32 app, LicenseDetect.ps1 can be used as detection script for the win32 app.
 
 
-Related blog posts can be found [Here](https://www.inthecloud247.com/)
+Related blog post can be found [Here](https://www.inthecloud247.com/activate-windows-with-the-firmware-embedded-product-key/)
