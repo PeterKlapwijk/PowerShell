@@ -7,3 +7,6 @@
 This script is provide "As-Is" without any warranties
 
 The related blog post can be found [Here](https://www.inthecloud247.com/)
+
+
+*Note; if you are going to test the script in Hyper-V, turn off enhanced view.*
