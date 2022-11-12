@@ -6,7 +6,7 @@
 
 This script is provide "As-Is" without any warranties
 
-The related blog post can be found [Here](https://www.inthecloud247.com/)
+The related blog post can be found [here](https://www.inthecloud247.com/how-to-change-the-windows-11-language-with-intune/)
 
 
 *Note; if you are going to test the script in Hyper-V, turn off enhanced view.*
