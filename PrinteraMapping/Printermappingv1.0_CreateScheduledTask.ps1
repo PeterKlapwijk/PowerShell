@@ -6,6 +6,7 @@
 #                                                                                                              #
 # Changes      : v1.0 - Initial version                                  		                       		   # 
 #                                                                                                              #
+#                This script is provide "As-Is" without any warranties                                         #
 #                                                                                                              #                     
 #------------------------------------------------------------------------------------------------------------- #
 
@@ -20,9 +21,14 @@ If ($ENV:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
     Exit
 }
 
-#Set variables:
-#Company name
+# ------------------------------------------------------------------------------------------------------- #
+# Variables
+# ------------------------------------------------------------------------------------------------------- #
 $CompanyName = "Klapwijk"
+$TaskScriptName = "Printermappingv1.0_ScriptRunFromTaskScheduler.vbs"
+$TaskScriptName2 = "Printermappingv1.0_ScriptRunFromTaskScheduler.ps1"
+$TaskScriptFolder = "C:\Program Files\Common Files\$CompanyName\PrinterMapping"
+$ScriptSourceDirectory = Split-Path -Parent $PSCommandPath
 
 #region Functions
 Function CleanUpAndExit() {
@@ -55,14 +61,6 @@ Function CleanUpAndExit() {
 $Transcript = "C:\programdata\Microsoft\IntuneManagementExtension\Logs\$($(Split-Path $PSCommandPath -Leaf).ToLower().Replace(".ps1",".log"))"
 Start-Transcript -Path $Transcript | Out-Null
 
-
-# ------------------------------------------------------------------------------------------------------- #
-# Variables
-# ------------------------------------------------------------------------------------------------------- #
-$TaskScriptName = "Printermappingv1.0_ScriptRunFromTaskScheduler.vbs"
-$TaskScriptName2 = "Printermappingv1.0_ScriptRunFromTaskScheduler.ps1"
-$TaskScriptFolder = "C:\Program Files\Common Files\$CompanyName\PrinterMapping"
-$ScriptSourceDirectory = Split-Path -Parent $PSCommandPath
 
 # ------------------------------------------------------------------------------------------------------- #
 # Create local copy of the script to be run from the Task Scheduler
