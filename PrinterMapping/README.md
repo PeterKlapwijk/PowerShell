@@ -14,3 +14,5 @@ An option to deploy the scripts is to wrap them as a win32 app and deploy the pa
 The logs are saved on %programdata%\Microsoft\IntuneManagementExtension\Logs. This makes it available in the Device Diagnostics for Intune.
 
 *Note; depending on the needed printer driver, it might be needed to deploy the printer driver separated.*
+
+The related blog post can be found [Here](https://www.inthecloud247.com/manage-printer-mappings-on-cloud-managed-windows-devices/)
