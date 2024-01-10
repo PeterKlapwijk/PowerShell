@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------------------------------------- #
 
 # Microsoft Intune Management Extension might start a 32-bit PowerShell instance. If so, restart as 64-bit PowerShell
-If ($ENV:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
+If ($ENV:PROCESSOR_ARCHITECTURE -eq "AMD64") {
     Try {
         &"$ENV:WINDIR\SysNative\WindowsPowershell\v1.0\PowerShell.exe" -File $PSCOMMANDPATH
     }
