@@ -7,7 +7,8 @@ This is an example of a solution to automatically configure the time zone on a W
 *The solution makes use of https://ipinfo.io to retrieve the location of the device. Please note the API request limits of this service!*
 *The solution also makes use of Bing Maps Dev Center. Via the API of this service the loction is converted to a Time Zone.*
 *Check the license agreement if a basic key (free) key is suitable for your needs!*
-An option to deploy the scripts is to wrap them as a win32 app and deploy the package with Microsoft Intune.
+
+An option to deploy the scripts is to wrap them as a win32 app and deploy the package with Microsoft Intune (during Autopilot enrollment).
 
 The logs are saved on %programdata%\Microsoft\IntuneManagementExtension\Logs. This makes it available in the Device Diagnostics for Intune.
 
