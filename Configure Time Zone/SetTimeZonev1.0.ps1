@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------------------- #
 # Author(s)    : Peter Klapwijk - www.inthecloud247.com                        #
+#                Original script from Koen Van den Broeck                      #
 # Version      : 1.0                                                           #
 #                                                                              #
 # Description  : Automatically configure the time zone                         #
