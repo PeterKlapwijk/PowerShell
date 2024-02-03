@@ -66,7 +66,7 @@ $Location = $IPInfo.loc
 Write-Output "Country : "$IPInfo.country
 Write-Output "Public IP Address : "$IPInfo.ip
 Write-Output "Location : "$IPInfo.loc
-$BingTimeZoneURL = "http://dev.virtualearth.net/REST/v1/TimeZone/$Location" + "?key=$BingKey"
+$BingTimeZoneURL = "https://dev.virtualearth.net/REST/v1/TimeZone/$Location" + "?key=$BingKey"
 $ResultTZ = Invoke-RestMethod $BingTimeZoneURL
 $WindowsTZ = $ResultTZ.resourceSets.resources.timeZone.windowsTimeZoneId
 If (![string]::IsNullOrEmpty($WindowsTZ))
