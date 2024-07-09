@@ -6,4 +6,4 @@ An option to deploy the scripts is to wrap them as a win32 app and deploy the pa
 
 The logs are saved on %programdata%\Microsoft\IntuneManagementExtension\Logs. This makes it available in the Device Diagnostics for Intune.
 
-The related blog post can be found here [Here](https://inthecloud247.com/)
+The related blog post can be found here [Here](https://inthecloud247.com/update-microsoft-edge-during-windows-autopilot-enrollments/)
