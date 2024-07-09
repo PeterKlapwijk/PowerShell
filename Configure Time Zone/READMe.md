@@ -12,5 +12,4 @@ An option to deploy the scripts is to wrap them as a win32 app and deploy the pa
 
 The logs are saved on %programdata%\Microsoft\IntuneManagementExtension\Logs. This makes it available in the Device Diagnostics for Intune.
 
-I'll share a blog post later on this solution to describe this solution in more detail.
-My website can be found here [Here](https://www.inthecloud247.com/)
+The related blog post can be found here [Here](https://inthecloud247.com/automatically-configure-the-time-zone-during-autopilot-enrollment/)
