@@ -57,7 +57,7 @@ Function CleanUpAndExit() {
 $ExitCode = 0
 
 #Results stored in the registry for Intune detection. Change to your needs.
-$StoreResults = "InTheCloud247\EdgeUpdateAutopilot\v1.0"
+$StoreResults = "InTheCloud247\EdgeUpdateAutopilot\v1.1"
 
 #Get Edge app GUID depending on the update channel
 switch ($UpdateChannel) {
