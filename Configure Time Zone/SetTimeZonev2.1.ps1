@@ -2,7 +2,7 @@
 # Author(s)    : Peter Klapwijk - www.inthecloud247.com                        #
 #              : Johannes Muller - Co-author @ www.2azure.nl                   #
 #                Original script from Koen Van den Broeck                      #
-# Version      : 2.0                                                           #
+# Version      : 2.1                                                           #
 #                                                                              #
 # Description  : Automatically configure the time zone using Azure Maps        #
 #                Uses `timezone/enumWindows` API to dynamically map time zones #
@@ -50,7 +50,7 @@ Function CleanUpAndExit() {
 # ------------------------------------------------------------------------------------------------------- #
 # Variables, change to your needs
 # ------------------------------------------------------------------------------------------------------- #
-$StoreResults = "COMPANY\TimeZone\v2.0"
+$StoreResults = "COMPANY\TimeZone\v2.1"
 $AzureMapsKey = "xxxxx" 
 
 # Start Transcript
@@ -68,11 +68,12 @@ Write-Output "Country Code: $CountryCode"
 # Retrieve all Windows Time Zones from Azure Maps
 $AzureMapsURL = "https://atlas.microsoft.com/timezone/enumWindows/json?api-version=1.0&subscription-key=$AzureMapsKey"
 $ResultTZ = Invoke-RestMethod -Uri $AzureMapsURL -Method Get
+# Retrieve Time Zone WindowsId
+$WindowsTZ = ($ResultTZ | Where-Object Territory -eq $CountryCode).WindowsId
 
-Invoke-RestMethod -Uri $AzureMapsURL -Method Get | 
 
 If (![string]::IsNullOrEmpty($WindowsTZ)) {
-    Write-Output "Mapped Country ($CountryCode) to Windows Time Zone: $WindowsTZ"
+    Write-Output "Mapped Country code ($CountryCode) to Windows Time Zone: $WindowsTZ"
 } else {
     Write-Output "No matching Windows Time Zone found for country: $CountryCode"
     CleanUpAndExit -ErrorLevel 103
