@@ -1,16 +1,14 @@
 # ---------------------------------------------------------------------------- #
 # Author(s)    : Peter Klapwijk - www.inthecloud247.com                        #
+#              : Johannes Muller - Co-author @ www.2azure.nl                   #
 #                Original script from Koen Van den Broeck                      #
-# Version      : 1.0                                                           #
+# Version      : 2.0                                                           #
 #                                                                              #
-# Description  : Automatically configure the time zone                         #
+# Description  : Automatically configure the time zone using Azure Maps        #
+#                Uses `timezone/enumWindows` API to dynamically map time zones #
 #                                                                              #
 # Notes:                                                                       #
 # https://ipinfo.io/ has a limit of 50k requests per month without a license   #
-#                                                                              #
-# The solution makes use of Bing Maps Dev Center. An API key needs to be       #
-# created on https://www.bingmapsportal.com. Check the license agreement if a  #
-# basic key (free) key is suitable for your needs.                             #
 #                                                                              #
 # This script is provide "As-Is" without any warranties                        #
 #                                                                              #
@@ -49,38 +47,40 @@ Function CleanUpAndExit() {
 }
 #endregion Functions
 
-
 # ------------------------------------------------------------------------------------------------------- #
 # Variables, change to your needs
 # ------------------------------------------------------------------------------------------------------- #
-$StoreResults = "COMPANY\TimeZone\v1.0"
-$BingKey = "xxxxx"
+$StoreResults = "COMPANY\TimeZone\v2.0"
+$AzureMapsKey = "xxxxx" 
 
 # Start Transcript
 Start-Transcript -Path "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$($(Split-Path $PSCommandPath -Leaf).ToLower().Replace(".ps1",".log"))" | Out-Null
 
 # Automatically configure the time zone
 $Error.Clear()
+
+# Retrieve IP information
 $IPInfo = Invoke-RestMethod http://ipinfo.io/json
-$Location = $IPInfo.loc
-Write-Output "Country : "$IPInfo.country
-Write-Output "Public IP Address : "$IPInfo.ip
-Write-Output "Location : "$IPInfo.loc
-$BingTimeZoneURL = "https://dev.virtualearth.net/REST/v1/TimeZone/$Location" + "?key=$BingKey"
-$ResultTZ = Invoke-RestMethod $BingTimeZoneURL
-$WindowsTZ = $ResultTZ.resourceSets.resources.timeZone.windowsTimeZoneId
-If (![string]::IsNullOrEmpty($WindowsTZ))
-{
-Get-TimeZone -Id $WindowsTZ
-Set-TimeZone -Id $WindowsTZ
+$CountryCode = $IPInfo.country
+
+Write-Output "Country Code: $CountryCode"
+
+# Retrieve all Windows Time Zones from Azure Maps
+$AzureMapsURL = "https://atlas.microsoft.com/timezone/enumWindows/json?api-version=1.0&subscription-key=$AzureMapsKey"
+$ResultTZ = Invoke-RestMethod -Uri $AzureMapsURL -Method Get
+
+Invoke-RestMethod -Uri $AzureMapsURL -Method Get | 
+
+If (![string]::IsNullOrEmpty($WindowsTZ)) {
+    Write-Output "Mapped Country ($CountryCode) to Windows Time Zone: $WindowsTZ"
+} else {
+    Write-Output "No matching Windows Time Zone found for country: $CountryCode"
+    CleanUpAndExit -ErrorLevel 103
 }
 
-If ($Error.Count -gt 0) {
-    Write-Output "Failed to set the time zone: $($Error[0])"
-    CleanUpAndExit -ErrorLevel 101
-} else {
-    Write-Output "Successfully set the time zone"
-}
+# Set the Windows time zone
+Set-TimeZone -Id $WindowsTZ
+Write-Output "Successfully set Windows Time Zone: $WindowsTZ"
 
 CleanUpAndExit -ErrorLevel 0
 
