@@ -1,16 +1,15 @@
 # ------------------------------------------------------------------------------------------------------------ #
-# Author(s)    : Peter Klapwijk - www.inthecloud247.com                                                        #
+# Author(s)    : Peter Klapwijk - www.InTheCloud247.com                                                        #
 # Version      : 1.0                                                                                           #
 #                                                                                                              #
-# Description  : This Powershell script will remove AppX packages from the system                              #
-#                that are listed in the app array                                                              #
+# Description  : This script removes unwanted (pre-installed) AppX packages from the system                    # 
 #                                                                                                              #
-# Changes      : v1.0 - Initial version                                                                		   # 
-#                                                                                                              # 
-#                                                                                                              #
-#                This script is provide "As-Is" without any warranties                                 		   #
-#                                                                                                              #
+# Changes      : v1.0 - Initial version																		   #
+#   																                                           #
+# This script is provide "As-Is" without any warranties                                                        #
 #------------------------------------------------------------------------------------------------------------- #
+
+
 If ($ENV:PROCESSOR_ARCHITEW6432 -eq "AMD64") {
     Try {
         &"$ENV:WINDIR\SysNative\WindowsPowershell\v1.0\PowerShell.exe" -File $PSCOMMANDPATH
@@ -35,80 +34,138 @@ Function CleanUpAndExit() {
         [microsoft.win32.registry]::SetValue($Key, "Success", $NOW)
     } else {
         [microsoft.win32.registry]::SetValue($Key, "Failure", $NOW)
-        [microsoft.win32.registry]::SetValue($Key, "Error Code", $Errorlevel)
+        [microsoft.win32.registry]::SetValue($Key, "Error Code", $ErrorLevel)
     }
     
     # Exit Script with the specified ErrorLevel
+    Stop-Transcript | Out-Null
     EXIT $ErrorLevel
 }
 
 # ---------------------------------------------------------------------------- #
 # Set Generic Script Variables, etc.
 # ---------------------------------------------------------------------------- #
-$StoreResults = "Klapwijk\AppXRemove\v1.0"
+$StoreResults = "Klapwijk\AppXRemoval\v1.0"
+
+# Ensure the log directory exists
+$LogDirectory = "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs"
+If (-Not (Test-Path -Path $LogDirectory)) {
+    New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
+}
 
 # Start Transcript
-Start-Transcript -Path "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$($(Split-Path $PSCommandPath -Leaf).ToLower().Replace(".ps1",".log"))" | Out-Null
-
-# Define Array
-$AppsToRemove = @()
-
-# Build array with Appx Packages to remove
-$AppsToRemove += "*Microsoft.BingWeather*"
-$AppsToRemove += "*Microsoft.GamingApp*"
-$AppsToRemove += "*Microsoft.GetHelp*"
-$AppsToRemove += "*Microsoft.Messaging*"
-$AppsToRemove += "*Microsoft.Microsoft3DBuilder*"
-$AppsToRemove += "*Microsoft.Microsoft3DViewer*"
-$AppsToRemove += "*Microsoft.MicrosoftOfficeHub*"
-$AppsToRemove += "*Microsoft.MicrosoftSolitaireCollection*"
-$AppsToRemove += "*Microsoft.MixedReality.Portal*"
-$AppsToRemove += "*Microsoft.Office.OneNote*"
-$AppsToRemove += "*Microsoft.OneConnect*"
-$AppsToRemove += "*Microsoft.People*"
-$AppsToRemove += "*Microsoft.Print3D*"
-$AppsToRemove += "*Microsoft.SkypeApp*"
-$AppsToRemove += "*Microsoft.Wallet*"
-$AppsToRemove += "*Microsoft.WindowsAlarms*"
-$AppsToRemove += "*microsoft.windowscommunicationsapps*"
-$AppsToRemove += "*Microsoft.WindowsFeedbackHub*"
-$AppsToRemove += "*Microsoft.WindowsMaps*"
-$AppsToRemove += "*Microsoft.Xbox.TCUI*"
-$AppsToRemove += "*Microsoft.XboxApp*"
-$AppsToRemove += "*Microsoft.XboxGameOverlay*"
-$AppsToRemove += "*Microsoft.XboxIdentityProvider*"
-$AppsToRemove += "*Microsoft.XboxSpeechToTextOverlay*"
-$AppsToRemove += "*Microsoft.YourPhone*"
-$AppsToRemove += "*Microsoft.ZuneMusic*"
-$AppsToRemove += "*Microsoft.ZuneVideo*"
-$AppsToRemove += "*MicrosoftTeams*"
-
-# Determine OS Drive when running in WinPE
-if ($env:SYSTEMDRIVE -eq "X:") {
-  $Offline = $true
-  $drives = get-volume | Where-Object {-not [String]::IsNullOrWhiteSpace($_.DriveLetter) } | Where-Object {$_.DriveType -eq 'Fixed'} | Where-Object {$_.DriveLetter -ne 'X'}
-  $drives | Where-Object { Test-Path "$($_.DriveLetter):\Windows\System32"} | ForEach-Object { $OfflinePath = "$($_.DriveLetter):\" }
-} else {
-  $Offline = $false
+If (-not $PSCOMMANDPATH) {
+    Throw "PSCOMMANDPATH is not defined."
 }
 
-# Remove the AppX provisioned packages from the installation
-$Error.Clear()
-Foreach ( $AppToRemove in $AppsToRemove) {
-    if ( $Offline -eq $true ) {
-        Get-AppxProvisionedPackage -Path $OfflinePath | Where-Object { $_.PackageName -like "$($AppToRemove)" } | Remove-AppxProvisionedPackage -Path $OfflinePath
-    } Else { 
-        # Remove provisioned AppX package that were updated during the install
-        Write-Output "Get-AppxProvisionedPackage -Online | Where-Object { $_.PackageName -like $($AppToRemove) } | Remove-AppxProvisionedPackage -online"
-        Get-AppxProvisionedPackage -Online | Where-Object { $_.PackageName -like "$($AppToRemove)" } | Remove-AppxProvisionedPackage -online
-        # Remove AppX package from all users that have it installed
-        Get-AppxPackage -AllUsers -Name "$($AppToRemove)" `
-            | Select-Object -ExpandProperty PackageUserInformation `
-            | Select-Object -ExpandProperty UserSecurityId `
-            | Select-Object SID `
-            | Foreach-object { Get-AppxPackage -AllUsers -Name "$($AppToRemove)" | Remove-AppxPackage -user $_.Sid; Get-AppxPackage -AllUsers -Name "$($AppToRemove)" | Remove-AppxPackage -Allusers }
+Try {
+    Start-Transcript -Path "$LogDirectory\$($(Split-Path $PSCommandPath -Leaf).ToLower().Replace('.ps1','.log'))" | Out-Null
+} Catch {
+    Write-Output "Warning: Failed to start transcript. Error: $_"
+}
+
+# List of AppX packages to remove
+$AppXPackagesToRemove = @(
+    "Microsoft.BingNews", 
+    "Microsoft.BingWeather", 
+    "Microsoft.GamingApp", 
+    "Microsoft.GetHelp",
+    "Microsoft.Getstarted",
+    "Microsoft.Microsoft3DViewer",
+    "Microsoft.MicrosoftOffaiceHub",
+    "Microsoft.MicrosoftSolitaireCollection",
+    "Microsoft.MixedReality.Portal",
+    "Microsoft.Office.OneNote",
+    "Microsoft.People",
+    "Microsoft.PowerAutomateDesktop",
+    "Microsoft.SkypeApp",
+    "Microsoft.Xbox.TCUI", 
+    "Microsoft.XboxGameOverlay", 
+    "Microsoft.XboxGamingOverlay", 
+    "Microsoft.XboxIdentityProvider", 
+    "Microsoft.XboxSpeechToTextOverlay",
+    "Microsoft.WindowsAlarms",
+    "Microsoft.windowscommunicationsapps",
+    "Microsoft.WindowsFeedbackHub",
+    "Microsoft.WindowsMaps",
+    "Microsoft.WindowsSoundRecorder",
+    "Microsoft.YourPhone", 
+    "Microsoft.ZuneMusic", 
+    "Microsoft.ZuneVideo",
+    "Microsoft.OutlookForWindows",
+    "Microsoft.Copilot",
+    "Microsoft.Windows.DevHome",
+    "Microsoft.MicrosoftStickyNotes"
+)
+
+# Function to remove AppX packages for the current user or all users
+function Remove-AppXPackages {
+    param (
+        [string[]]$Packages,
+        [switch]$ForAllUsers
+    )
+
+    foreach ($PackageName in $Packages) {
+        if ($ForAllUsers) {
+            Write-Output "Removing AppX package '$PackageName' for all users..."
+            Get-AppxPackage -AllUsers -Name $PackageName | ForEach-Object {
+                try {
+                    Remove-AppxPackage -Package $_.PackageFullName -AllUsers -ErrorAction Stop
+                    Write-Output "Removed package: $($_.Name)"
+                } catch {
+                    Write-Output "Failed to remove package: $($_.Name). Error: $_"
+                }
+            }
+        } else {
+            Write-Output "Removing AppX package '$PackageName' for the current user..."
+            Get-AppxPackage -Name $PackageName | ForEach-Object {
+                try {
+                    Remove-AppxPackage -Package $_.PackageFullName -ErrorAction Stop
+                    Write-Output "Removed package: $($_.Name)"
+                } catch {
+                    Write-Output "Failed to remove package: $($_.Name). Error: $_"
+                }
+            }
+        }
     }
 }
+
+# Function to remove AppxProvisionedPackages
+function Remove-AppxProvisionedPackages {
+    param (
+        [string[]]$Packages
+    )
+
+    foreach ($PackageName in $Packages) {
+        Write-Output "Removing provisioned AppX package '$PackageName'..."
+        Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq $PackageName } | ForEach-Object {
+            try {
+                Remove-AppxProvisionedPackage -Online -PackageName $_.PackageName -ErrorAction Stop
+                Write-Output "Removed provisioned package: $($_.DisplayName)"
+            } catch {
+                Write-Output "Failed to remove provisioned package: $($_.DisplayName). Error: $_"
+            }
+        }
+    }
+}
+
+# Clear previous errors
+$Error.Clear()
+
+# Comment the line which is not needed
+# Remove the specified AppX packages for the current user
+Write-Output "Start removing AppX packages for the current user"
+Remove-AppXPackages -Packages $AppXPackagesToRemove
+
+# Remove the specified AppX packages for all users
+Write-Output "Start removing AppX packages for the all users"
+Remove-AppXPackages -Packages $AppXPackagesToRemove -ForAllUsers
+
+# Remove the specified provisioned AppX packages
+Write-Output "Start removing provisioned AppX packages"
+Remove-AppxProvisionedPackages -Packages $AppXPackagesToRemove
+
+# Result
 If ($Error.Count -gt 0) {
     Write-Output "Removing AppX Packages failed: $($Error[0])"
     CleanUpAndExit -ErrorLevel 101
@@ -117,5 +174,3 @@ If ($Error.Count -gt 0) {
 }
 
 CleanUpAndExit -ErrorLevel 0
-
-Stop-Transcript
