@@ -2,7 +2,7 @@
 # Author(s)    : Peter Klapwijk - www.inthecloud247.com                        #
 #              : Johannes Muller - Co-author @ www.2azure.nl                   #
 #                Original script from Koen Van den Broeck                      #
-# Version      : 2.1                                                           #
+# Version      : 2.2                                                           #
 #                                                                              #
 # Description  : Automatically configure the time zone using Azure Maps        #
 #                Uses `timezone/enumWindows` API to dynamically map time zones #
@@ -43,6 +43,7 @@ Function CleanUpAndExit() {
     }
     
     # Exit Script with the specified ErrorLevel
+    Stop-Transcript | Out-Null
     EXIT $ErrorLevel
 }
 #endregion Functions
@@ -57,6 +58,7 @@ $AzureMapsKey = "xxxxx"
 Start-Transcript -Path "$env:ProgramData\Microsoft\IntuneManagementExtension\Logs\$($(Split-Path $PSCommandPath -Leaf).ToLower().Replace(".ps1",".log"))" | Out-Null
 
 # Automatically configure the time zone
+# Clear previous errors
 $Error.Clear()
 
 # Retrieve IP information
@@ -83,6 +85,12 @@ If (![string]::IsNullOrEmpty($WindowsTZ)) {
 Set-TimeZone -Id $WindowsTZ
 Write-Output "Successfully set Windows Time Zone: $WindowsTZ"
 
-CleanUpAndExit -ErrorLevel 0
+# Result
+If ($Error.Count -gt 0) {
+    Write-Output "Configuring the Time Zone failed: $($Error[0])"
+    CleanUpAndExit -ErrorLevel 101
+} else {
+    Write-Output "Successfully configured the Time Zonw"
+}
 
-Stop-Transcript
+CleanUpAndExit -ErrorLevel 0
