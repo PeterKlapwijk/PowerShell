@@ -164,7 +164,7 @@ Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 "Trigger ScheduledTask = LanguageComponentsInstaller\ReconcileLanguageResources"
 Start-ScheduledTask -TaskName "\Microsoft\Windows\LanguageComponentsInstaller\ReconcileLanguageResources"
 
-Start-Sleep 10
+Start-Sleep -Seconds 10
 
 # trigger store updates, there might be new app versions due to the language change
 "Trigger MS Store updates for app updates"
